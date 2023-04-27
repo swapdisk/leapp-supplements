@@ -50,15 +50,25 @@ of the Red Hat Enterprise Linux system.
 %prep
 %setup -q
 
-%build
-# TODO: built .pyc files
-
 %install
 install -m 0755 -d %{buildroot}%{custom_repositorydir}
 install -m 0755 -d %{buildroot}%{repositorydir}
 install -m 0755 -d %{buildroot}%{supplementsdir}
 install -m 0755 -d %{buildroot}%{_sysconfdir}/leapp/repos.d/
 cp -r repos/system_upgrade_supplements/* %{buildroot}%{supplementsdir}
+
+# Remove actors not found in actors_to_install list
+for subdir in common el7toel8 el8toel9; do \
+    [ -d %{buildroot}%{supplementsdir}/$subdir/actors ] || continue; \
+    pushd %{buildroot}%{supplementsdir}/$subdir/actors; \
+        for actor in *; do \
+            # Check if actor is in actors_to_instal llist
+            if ! echo "%{actors_to_install}" | grep -qw "$actor"; then \
+                rm -rf $actor; \
+            fi; \
+        done; \
+    popd; \
+done
 
 # Remove irrelevant repositories - We don't want to ship them for the particular RHEL version
 %if 0%{?rhel} == 7
@@ -78,6 +88,17 @@ do
     echo "Enabling repository $REPOSITORY"
     ln -s  %{repositorydir}/$REPOSITORY  %{buildroot}%{_sysconfdir}/leapp/repos.d/$REPOSITORY
 done;
+
+# === Compile Python files ===
+# __python2 could be problematic on systems with Python3 only, but we have
+# no choice as __python became error on F33+:
+# - https://fedoraproject.org/wiki/Changes/PythonMacroError
+%if 0%{?rhel} == 7
+%py_byte_compile %{__python2} %{buildroot}%{repositorydir}/*
+%endif
+%if 0%{?rhel} == 8
+%py_byte_compile %{__python3} %{buildroot}%{repositorydir}/*
+%endif
 
 %files
 %dir %{custom_repositorydir}
