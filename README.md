@@ -35,8 +35,6 @@ The actor will report inhibitor risk when:
 * The running kernel version does not match the default kernel version configured in the bootloader.
 * Any files are found under /boot that have been modified since the last reboot.
 
-
-
 ## Building the Custom Actors RPM
 
 In order to bundle the custom actors from this Git repository, follow the instructions below.
@@ -78,9 +76,18 @@ cd leapp-supplements
 3. Ensure the `actor-list.txt` file contains the actors you want to bundle. Each actor should be listed on a separate line. Lines starting with `#` are treated as comments and will be ignored. Feel free to add or remove actors as needed for your specific needs.
 
 4. Build the RPM package by running the following command:
-```bash
-make rpmbuild
-```
+
+- For upgrade between RHEL 7 and RHEL 8:
+
+    ```bash
+    make rpmbuild DIST_VERSION=7
+    ```
+
+- For upgrade between RHEL 8 and RHEL 9:
+
+    ```bash
+    make rpmbuild DIST_VERSION=8
+    ```
 
 After the process is complete, you should see the generated RPM files in the current directory.
 
@@ -91,11 +98,11 @@ To install the custom actors RPM, run the following command:
 sudo yum install ./<generated_rpm_file>
 ```
 
-Replace `<generated_rpm_file>` with the actual RPM file generated in the previous step.
+Replace `<generated_rpm_file>` with the actual RPM file generated in the previous step. Its name should end with `.noarch.rpm`.
 
 ### Using the Custom Actors
 
-Once the RPM is installed, the custom actors are automatically integrated with the Leapp project. You can now perform in-place upgrades using the Leapp command-line interface. The custom actors from this repository will be used during the upgrade process. For more details, they can be seen installed under `/usr/share/leapp-repository/repositories/system_upgrade_supplements`.
+Once the RPM is installed, the custom actors are automatically integrated with the Leapp project. You can now perform in-place upgrades using the Leapp command-line interface. The custom actors from this repository will be used during the upgrade process. For more details, they can be seen installed under `/usr/share/leapp-repository/custom-repositories/system_upgrade_supplements`.
 
 For more information on using Leapp and performing in-place upgrades, please refer to the [Leapp documentation](https://leapp.readthedocs.io/) and relevant Red Hat documentation regarding RHEL upgrades.
 
@@ -104,3 +111,5 @@ For more information on using Leapp and performing in-place upgrades, please ref
 Section containing details about how to contribute to the project.
 
 Before writing any code, familiarize yourself with the [Leapp project documentation](https://leapp.readthedocs.io/en/latest/). The section — [Creating your first actor](https://leapp.readthedocs.io/en/latest/first-actor.html) — is a good place to start.
+
+[Leapp Dashbaord](https://oamg.github.io/leapp-dashboard/#/) can also be a good tool to check already installed actors. Either to check if your developed actor already exists in the official [leapp-repository](https://github.com/oamg/leapp-repository.git) or to see if other actors could be incorporated into produce/consume steps of your actor.

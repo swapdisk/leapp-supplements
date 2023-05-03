@@ -1,29 +1,36 @@
 DIST_VERSION ?= 7
 
-NAME := leapp-supplements
-VERSION := 1.0.0
-SPEC_FILE := $(NAME).spec
-RPMBUILD_DIR := $(HOME)/rpmbuild
-TARBALL_PREFIX := $(NAME)-el$(DIST_VERSION)toel$$(($(DIST_VERSION) + 1))-$(VERSION)
+PKGNAME := leapp-supplements
+VERSION=$(shell grep -m1 "^Version:" packaging/$(PKGNAME).spec | grep -om1 "[0-9].[0-9.]*")
+SPEC_FILE := $(PKGNAME).spec
+TARBALL_PREFIX := $(PKGNAME)-$(VERSION)
 TARBALL := $(TARBALL_PREFIX).tar.gz
 ACTORS_TO_INSTALL := $(shell grep -v '^\#' actor-list.txt | tr '\n' ' ')
-SUPPLEMENTS_SUBDIRS := common el7toel8 el8toel9
 
-.PHONY: all clean tarball rpmbuild
+.PHONY: help clean tarball rpmbuild
 
-all: rpmbuild
+help:
+	@echo "Available targets:"
+	@echo "  rpmbuild   : Build RPM packages of the custom actors"
+	@echo "  tarball    : Create a tarball of the source code"
+	@echo "  clean      : Clean build artifacts and temporary files"
+	@echo "  help       : Show this help message"
+	@echo ""
+	@echo "To build an RPM for RHEL7 upgrade, run:"
+	@echo "  make rpmbuild DIST_VERSION=7"
+	@echo "To build an RPM for RHEL8 upgrade, run:"
+	@echo "  make rpmbuild DIST_VERSION=8"
+	@echo ""
+	@echo "Make sure to customize the actor-list.txt before building the RPM!"
 
 rpmbuild: tarball
 	rpmbuild -ba packaging/$(SPEC_FILE) \
-		--define "_builddir `pwd`/packaging/BUILD" \
-		--define "_rpmdir `pwd`/packaging/RPMS" \
-		--define "_sourcedir `pwd`/packaging/SOURCES"  \
-		--define "_srcrpmdir `pwd`/packaging/SRPMS" \
-		--define "_buildrootdir `pwd`/packaging/BUILDROOT" \
+		--define "_topdir $(shell pwd)/packaging" \
+		--define "pkgname $(PKGNAME)" \
 		--define "rhel $(DIST_VERSION)" \
+		--define "nextrhel $$(($(DIST_VERSION) + 1))" \
 		--define "dist .el$(DIST_VERSION)" \
-		--define "actors_to_install $(ACTORS_TO_INSTALL)" \
-		--define "supplements_subdirs $(SUPPLEMENTS_SUBDIRS)"
+		--define "actors_to_install $(ACTORS_TO_INSTALL)"
 	cp packaging/RPMS/*/*.rpm .
 	cp packaging/SRPMS/*.rpm .
 
@@ -32,9 +39,10 @@ tarball: prepare
 	mv $(TARBALL) packaging/SOURCES/
 
 prepare: clean
-	mkdir -p packaging/{BUILD,RPMS,SOURCES,SRPMS,BUILDROOT}
 # check if there are any actors in ACTORS_TO_INSTALL
-	@[ -n "$(ACTORS_TO_INSTALL)" ] || (echo "actor-list.txt cannot be empty, no actors to install" && exit 1)
+	@[ -n "$(ACTORS_TO_INSTALL)" ] || (echo "[ERR] actor-list.txt cannot be empty, no actors to install" && exit 1)
+# create the build directories
+	mkdir -p packaging/{BUILD,RPMS,SOURCES,SRPMS,BUILDROOT}
 
 clean:
 	rm -rf packaging/{BUILD,RPMS,SOURCES,SRPMS,BUILDROOT}
