@@ -12,7 +12,7 @@ Release:        47.demo%{?dist}
 Summary:        Custom actors for the Leapp project
 
 License:        ASL 2.0
-URL:            https://github.com/oamg/%{pkgname}
+URL:            https://github.com/swapdisk/leapp-supplements/tree/demo
 Source0:        %{pkgname}-%{version}.tar.gz
 
 BuildArch:      noarch
