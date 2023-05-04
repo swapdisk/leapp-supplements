@@ -1,4 +1,5 @@
 DIST_VERSION ?= 7
+EXCESSIVE_UPTIME_LIMIT_DAYS ?= 30
 
 PKGNAME := leapp-supplements
 VERSION=$(shell grep -m1 "^Version:" packaging/$(PKGNAME).spec | grep -om1 "[0-9].[0-9.]*")
@@ -23,7 +24,7 @@ help:
 	@echo ""
 	@echo "Make sure to customize the actor-list.txt before building the RPM!"
 
-rpmbuild: tarball
+rpmbuild: tarball update_uptime_limit
 	rpmbuild -ba packaging/$(SPEC_FILE) \
 		--define "_topdir $(shell pwd)/packaging" \
 		--define "pkgname $(PKGNAME)" \
@@ -33,6 +34,7 @@ rpmbuild: tarball
 		--define "actors_to_install $(ACTORS_TO_INSTALL)"
 	cp packaging/RPMS/*/*.rpm .
 	cp packaging/SRPMS/*.rpm .
+	$(MAKE) restore_uptime_limit
 
 tarball: prepare
 	git archive --format=tar.gz --prefix=$(TARBALL_PREFIX)/ -o $(TARBALL) HEAD
@@ -51,3 +53,10 @@ clean:
 	find . -name '__pycache__' -exec rm -fr {} +
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
+
+update_uptime_limit:
+	cp repos/system_upgrade_supplements/common/actors/checkreboothygiene/libraries/checkreboothygiene.py repos/system_upgrade_supplements/common/actors/checkreboothygiene/libraries/checkreboothygiene.py.bak
+	sed -i 's/^\(DEFAULT_EXCESSIVE_UPTIME_LIMIT_DAYS = \).*$$/\1$(EXCESSIVE_UPTIME_LIMIT_DAYS)/' repos/system_upgrade_supplements/common/actors/checkreboothygiene/libraries/checkreboothygiene.py
+
+restore_uptime_limit:
+	mv repos/system_upgrade_supplements/common/actors/checkreboothygiene/libraries/checkreboothygiene.py.bak repos/system_upgrade_supplements/common/actors/checkreboothygiene/libraries/checkreboothygiene.py

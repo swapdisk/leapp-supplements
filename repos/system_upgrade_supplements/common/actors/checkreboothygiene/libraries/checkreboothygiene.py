@@ -7,7 +7,6 @@ from leapp.libraries.common import config
 from leapp.libraries.stdlib import CalledProcessError, api, run
 
 DAY_IN_SECONDS = 24 * 60 * 60
-# TODO: can this be parametrized? (Makefile)
 EXCESSIVE_UPTIME_LIMIT_DAYS = 30
 EXCESSIVE_UPTIME_LIMIT_SECONDS = EXCESSIVE_UPTIME_LIMIT_DAYS * DAY_IN_SECONDS
 
