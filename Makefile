@@ -1,4 +1,4 @@
-DIST_VERSION ?= 7
+DIST_VERSION ?= DIST_VERSION := $(shell sed -r 's/([^:]*:){4}//;s/(.).*/\1/' /etc/system-release-cpe)
 
 PKGNAME := leapp-supplements
 VERSION=$(shell grep -m1 "^Version:" packaging/$(PKGNAME).spec | grep -om1 "[0-9].[0-9.]*")

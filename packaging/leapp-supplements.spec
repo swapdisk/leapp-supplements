@@ -8,7 +8,7 @@
 # Define RPM Preamble
 Name:           leapp-upgrade-el%{rhel}toel%{nextrhel}-supplements
 Version:        1.0.0
-Release:        1%{?dist}
+Release:        47.demo%{?dist}
 Summary:        Custom actors for the Leapp project
 
 License:        ASL 2.0
@@ -49,6 +49,8 @@ install -m 0755 -d %{buildroot}%{custom_repositorydir}
 install -m 0755 -d %{buildroot}%{repositorydir}
 install -m 0755 -d %{buildroot}%{supplementsdir}
 install -m 0755 -d %{buildroot}%{_sysconfdir}/leapp/repos.d/
+install -m 0755 -d %{buildroot}%{_docdir}/%{name}
+cp LICENSE README.md %{buildroot}%{_docdir}/%{name}
 cp -r repos/%{supplementsdir_name}/* %{buildroot}%{supplementsdir}
 
 # Remove irrelevant repositories - We don't want to ship them for the particular RHEL version
@@ -90,9 +92,17 @@ ln -s %{supplementsdir} %{buildroot}%{_sysconfdir}/leapp/repos.d/%{supplementsdi
 %endif
 
 %files
+%license %{_docdir}/%{name}/LICENSE
+%doc %{_docdir}/%{name}/README.md
 %{supplementsdir}/*
 %{_sysconfdir}/leapp/repos.d/%{supplementsdir_name}
 
 %changelog
+* Thu May 4 2023 Bob Mader <bob@redhat.com> 1.0.0-47.demo
+- Ignore kdump.img files per https://github.com/oamg/leapp-supplements/issues/3
+
+* Wed May 3 2023 Bob Mader <bob@redhat.com> 1.0.0-46.demo
+- Custom fork for demo workshop
+
 * Tue Apr 25 2023 Marek Filip <mafilip@redhat.com>
 - Initial RPM packaging
