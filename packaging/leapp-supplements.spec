@@ -8,7 +8,7 @@
 # Define RPM Preamble
 Name:           leapp-upgrade-el%{rhel}toel%{nextrhel}-supplements
 Version:        1.0.0
-Release:        47.demo%{?dist}
+Release:        48.demo%{?dist}
 Summary:        Custom actors for the Leapp project
 
 License:        ASL 2.0
@@ -98,6 +98,9 @@ ln -s %{supplementsdir} %{buildroot}%{_sysconfdir}/leapp/repos.d/%{supplementsdi
 %{_sysconfdir}/leapp/repos.d/%{supplementsdir_name}
 
 %changelog
+* Mon May 8 2023 Bob Mader <bob@redhat.com> 1.0.0-48.demo
+- Exception for grubenv because https://access.redhat.com/solutions/6765351
+
 * Thu May 4 2023 Bob Mader <bob@redhat.com> 1.0.0-47.demo
 - Ignore kdump.img files per https://github.com/oamg/leapp-supplements/issues/3
 

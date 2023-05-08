@@ -91,7 +91,9 @@ def check_modified_boot_files():
         for file in files:
             file_path = os.path.join(root, file)
             # We don't want to include the kdump file in the list of boot files
-            if os.path.isfile(file_path) and not fnmatch.fnmatch(file, "*kdump.img"):
+            if (os.path.isfile(file_path) and
+                    not fnmatch.fnmatch(file, "*kdump.img") and 
+                    not fnmatch.fnmatch(file, "*grubenv")):
                 boot_files.append(file_path)
 
     modified_boot_files = []
